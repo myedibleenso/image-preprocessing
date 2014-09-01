@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy
 from matplotlib import pyplot as plt
+import matplotlib.cm as cm
 
 class ImagePreprocessor(object):
   def __init__(self, images):
@@ -36,11 +37,13 @@ class ImagePreprocessor(object):
     cv2.destroyAllWindows()
     """
 
-  def view_images(self):
-    for i in self.images:
-      plt.imshow(i, cmap = 'gray', interpolation = 'bicubic')
-      plt.xticks([]), plt.yticks([])
-      plt.pause(.1)
+  def view_sequence(self):
+    plt.ion()
+    plt.xticks([]), plt.yticks([])
+    # show as grayscale
+    im = plt.imshow(self.images[1], cmap = cm.Greys_r)
+    for i in self.images[1:]:
+      im.set_data(i)
       plt.draw()
 
   def save_images(self, imdest):
