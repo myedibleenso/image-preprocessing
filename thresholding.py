@@ -6,6 +6,7 @@ import matplotlib.cm as cm
 
 class ImagePreprocessor(object):
   def __init__(self, images):
+    self.image_titles = None
     self.images = self.get_images(images)
     self.destination = None
 
@@ -14,14 +15,15 @@ class ImagePreprocessor(object):
 
     # is it a path?
     if type(images) == str:
+      self.image_titles = [img for img in os.listdir(images) if os.path.splitext(img)[-1].lower() in image_extensions]
       return [cv2.imread(os.path.join(images, i), 0) for i in os.listdir(images) if os.path.splitext(i)[-1].lower() in image_extensions]
 
     # is it a list of filenames?
-    if type(images) == list and type(images[0]) == str:
+    elif type(images) == list and type(images[0]) == str:
       return [cv2.imread(i, 0) for i in images]
 
     # is it a list of arrays?
-    if type(images[0] == numpy.ndarray):
+    elif type(images[0] == numpy.ndarray):
       return images
 
   def view_image(self, img):
@@ -46,10 +48,21 @@ class ImagePreprocessor(object):
       im.set_data(i)
       plt.draw()
 
+  def save_video(self, video_dest = "", name = ""):
+    name = name or "video"
+    (h, w) = self.images[0].shape
+    video = cv2.VideoWriter(os.path.join(video_dest, '{0}.avi'.format(name)), cv2.cv.CV_FOURCC(*'XVID'), 25, (w, h), False)
+    for i in self.images:
+      video.write(i)
+    video.release()
+
   def save_images(self, imdest):
-    destinations = [os.path.join(dest, os.path.basename(i)) for i in self.images]
+    if self.image_titles:
+      destinations = [os.path.join(imdest, i) for i in self.image_titles]
+    else:
+      destinations = [os.path.join(imdest, "{0}.jpg".format(i)) for i in self.images]
     for i in range(len(destinations)):
-      cv2.imwrite(images[i], thresholded_images[i][-1])
+      cv2.imwrite(destinations[i], self.images[i])
 
   def gaussian_blur(self):
     # TODO: add options for degree of blur
